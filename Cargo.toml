@@ -1,0 +1,11 @@
+[package]
+name = "blog-xdp"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Helpers for xdp blog articles https://blog.littlejo.link/ in eBPF/XDP"
+
+[dependencies]
+aya-ebpf = { git = "https://github.com/aya-rs/aya", default-features = false }
+network-types = "0.1.0"
+aya-ebpf-bindings = "0.1.1"
