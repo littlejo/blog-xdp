@@ -7,5 +7,6 @@ description = "Helpers for xdp blog articles https://blog.littlejo.link/ in eBPF
 
 [dependencies]
 aya-ebpf = { git = "https://github.com/aya-rs/aya", default-features = false }
+aya-log-ebpf = { git = "https://github.com/aya-rs/aya", default-features = false }
 network-types = "0.1.0"
 aya-ebpf-bindings = "0.1.1"
