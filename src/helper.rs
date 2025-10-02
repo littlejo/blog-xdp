@@ -46,7 +46,7 @@ pub fn ptr_at_mut<T>(ctx: &XdpContext, offset: usize) -> Result<*mut T, u16> {
 }
 
 #[inline(always)]
-fn log_icmp(ctx: &XdpContext, ipv4hdr: *mut Ipv4Hdr, icmphdr: *const IcmpHdr) {
+pub fn log_icmp(ctx: &XdpContext, ipv4hdr: *mut Ipv4Hdr, icmphdr: *const IcmpHdr) {
     let type_ = unsafe { (*icmphdr).type_ };
     let dst_addr = unsafe { (*ipv4hdr).dst_addr };
     let src_addr = unsafe { (*ipv4hdr).src_addr };
