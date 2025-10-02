@@ -1,7 +1,8 @@
 use aya_ebpf::programs::XdpContext;
 use aya_ebpf_bindings::helpers::bpf_csum_diff;
+use aya_log_ebpf::info;
 use core::mem::size_of;
-use network_types::ip::Ipv4Hdr;
+use network_types::{icmp::IcmpHdr, ip::Ipv4Hdr};
 
 #[inline(always)]
 pub fn csum_fold(mut csum: u64) -> u16 {
@@ -42,4 +43,13 @@ pub fn ptr_at<T>(ctx: &XdpContext, offset: usize) -> Result<*const T, u16> {
 pub fn ptr_at_mut<T>(ctx: &XdpContext, offset: usize) -> Result<*mut T, u16> {
     let ptr = ptr_at::<T>(ctx, offset)?;
     Ok(ptr as *mut T)
+}
+
+#[inline(always)]
+fn log_icmp(ctx: &XdpContext, ipv4hdr: *mut Ipv4Hdr, icmphdr: *const IcmpHdr) {
+    let type_ = unsafe { (*icmphdr).type_ };
+    let dst_addr = unsafe { (*ipv4hdr).dst_addr };
+    let src_addr = unsafe { (*ipv4hdr).src_addr };
+
+    info!(ctx, "src={:i} dst={:i} ({})", src_addr, dst_addr, type_);
 }
