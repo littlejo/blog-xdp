@@ -2,7 +2,11 @@ use aya_ebpf::programs::XdpContext;
 use aya_ebpf_bindings::helpers::bpf_csum_diff;
 use aya_log_ebpf::info;
 use core::mem::size_of;
-use network_types::{icmp::IcmpHdr, ip::Ipv4Hdr};
+use network_types::{
+    eth::{EthHdr, EtherType},
+    icmp::IcmpHdr,
+    ip::{IpProto, Ipv4Hdr},
+};
 
 #[inline(always)]
 pub fn csum_fold(mut csum: u64) -> u16 {
@@ -52,4 +56,24 @@ pub fn log_icmp(ctx: &XdpContext, ipv4hdr: *mut Ipv4Hdr, icmphdr: *const IcmpHdr
     let src_addr = unsafe { (*ipv4hdr).src_addr };
 
     info!(ctx, "src={:i} dst={:i} ({})", src_addr, dst_addr, type_);
+}
+
+#[inline(always)]
+pub fn filter_icmp(ctx: &XdpContext) -> Option<(*mut Ipv4Hdr, *const IcmpHdr)> {
+    let ethhdr: *const EthHdr = ptr_at(ctx, 0).ok()?;
+
+    match unsafe { (*ethhdr).ether_type() } {
+        Ok(EtherType::Ipv4) => {}
+        _ => return None,
+    }
+
+    let ipv4hdr: *mut Ipv4Hdr = ptr_at_mut(ctx, EthHdr::LEN).ok()?;
+    let icmphdr: *const IcmpHdr = ptr_at(&ctx, EthHdr::LEN + Ipv4Hdr::LEN).ok()?;
+
+    match unsafe { (*ipv4hdr).proto } {
+        IpProto::Icmp => {}
+        _ => return None,
+    }
+
+    Some((ipv4hdr, icmphdr))
 }

@@ -1,4 +1,4 @@
-use network_types::{ip::Ipv4Hdr, eth::EthHdr, udp::UdpHdr};
+use network_types::{eth::EthHdr, ip::Ipv4Hdr, udp::UdpHdr};
 
 pub enum Mode {
     Src,
