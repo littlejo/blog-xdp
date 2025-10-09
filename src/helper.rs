@@ -60,7 +60,7 @@ pub fn log_icmp(ctx: &XdpContext, ipv4hdr: *mut Ipv4Hdr, icmphdr: *const IcmpHdr
 }
 
 #[inline(always)]
-pub fn log_tcp(ctx: &XdpContext, ipv4hdr: *mut Ipv4Hdr, tcphdr: *const TcpHdr) {
+pub fn log_tcp(ctx: &XdpContext, ipv4hdr: *const Ipv4Hdr, tcphdr: *const TcpHdr) {
     let dst_addr = unsafe { (*ipv4hdr).dst_addr };
     let src_addr = unsafe { (*ipv4hdr).src_addr };
 
