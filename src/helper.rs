@@ -6,6 +6,7 @@ use network_types::{
     eth::{EthHdr, EtherType},
     icmp::IcmpHdr,
     ip::{IpProto, Ipv4Hdr},
+    tcp::TcpHdr,
 };
 
 #[inline(always)]
@@ -56,6 +57,36 @@ pub fn log_icmp(ctx: &XdpContext, ipv4hdr: *mut Ipv4Hdr, icmphdr: *const IcmpHdr
     let src_addr = unsafe { (*ipv4hdr).src_addr };
 
     info!(ctx, "src={:i} dst={:i} ({})", src_addr, dst_addr, type_);
+}
+
+#[inline(always)]
+pub fn log_tcp(ctx: &XdpContext, ipv4hdr: *mut Ipv4Hdr, tcphdr: *const TcpHdr) {
+    let dst_addr = unsafe { (*ipv4hdr).dst_addr };
+    let src_addr = unsafe { (*ipv4hdr).src_addr };
+
+    let src_port = u16::from_be_bytes(unsafe { (*tcphdr).source });
+    let dst_port = u16::from_be_bytes(unsafe { (*tcphdr).dest });
+    let seq = u32::from_be_bytes(unsafe { (*tcphdr).seq });
+    let ack_seq = u32::from_be_bytes(unsafe { (*tcphdr).ack_seq });
+    let syn = unsafe { (*tcphdr).syn() };
+    let ack = unsafe { (*tcphdr).ack() };
+    let psh = unsafe { (*tcphdr).psh() };
+    let fin = unsafe { (*tcphdr).fin() };
+
+    info!(
+        &ctx,
+        "seq: {}, ack_seq: {}, syn: {}, ack: {}, data: {}, fin: {}, src: {:i}:{}, dst: {:i}:{}",
+        seq,
+        ack_seq,
+        syn,
+        ack,
+        psh,
+        fin,
+        src_addr,
+        src_port,
+        dst_addr,
+        dst_port
+    );
 }
 
 #[inline(always)]
